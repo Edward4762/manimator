@@ -9,9 +9,17 @@ from agents.debugger_agent import debugger_agent
 from agents.decompose_agent import animation_decomposer_agent
 from agents.updater_agent import updater_agent
 from utils import run_manim_code, extract_scene_class_name, clean_manim_code
-
+from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
+
+app.add_middleware(
+  CORSMiddleware,
+  allow_origins=["http://localhost:5173"],  # or ["*"] in dev
+  allow_credentials=True,
+  allow_methods=["*"],
+  allow_headers=["*"],
+)
 STATIC_VIDEOS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static_videos")
 
 if not os.path.exists(STATIC_VIDEOS_DIR):
@@ -51,7 +59,7 @@ async def generate_animation(query: str):
                     break 
                 video_fs_path, stdout, stderr = run_manim_code(manim_code, temp_dir, scene_name)
                 if video_fs_path:
-                    video_url = f"/videos/{os.path.basename(video_fs_path)}"
+                    video_url = f"{os.path.basename(video_fs_path)}"
                     break
 
         return {
@@ -89,7 +97,7 @@ async def update_animation(query: str, manim_code_input:str):
         video_fs_path, stdout, stderr = run_manim_code(current_manim_code, temp_dir, scene_name)
         
         if video_fs_path:
-            video_url = f"/videos/{os.path.basename(video_fs_path)}"
+            video_url = f"{os.path.basename(video_fs_path)}"
         elif stderr: 
             for i in range(1, 3):
                 debug_input = f"Code: {current_manim_code}\nError: {stderr}"

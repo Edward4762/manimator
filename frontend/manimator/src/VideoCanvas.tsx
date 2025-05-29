@@ -3,13 +3,27 @@
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Play, Plus } from "lucide-react";
+import React from 'react'; // Import React if not already
+
+// Props for MediaPreviewInterface
+interface MediaPreviewInterfaceProps {
+  videoPath?: string | null; // To be passed from a parent component
+}
+
+// Props for VideoPreview
+interface VideoPreviewProps {
+  videoPath?: string | null;
+}
+
+// Define the base URL for your backend videos.
+// In a real application, this might come from an environment variable.
+const BACKEND_VIDEO_BASE_URL = "http://localhost:8000"; // As requested: localhost:8000
 
 function HeaderBar() {
   return (
     <div className="flex items-center justify-between">
       <p className="text-sm font-normal text-muted-foreground">Preview</p>
       <div className="flex items-center gap-4">
-        {/* <p className="text-sm font-normal text-muted-foreground">Invite</p> */}
         <Button size='sm' variant="outline" onClick={() => console.log("Invite clicked")}>Invite</Button>
         <Button size="sm" onClick={() => console.log("Export clicked")}>Export</Button>
       </div>
@@ -17,12 +31,39 @@ function HeaderBar() {
   );
 }
 
-function VideoPreview() {
+function VideoPreview({ videoPath }: VideoPreviewProps) {
+  let fullVideoUrl: string | null = null;
+
+  if (videoPath && videoPath.trim() !== "") {
+    // Ensure the base URL does not end with a slash if we are adding one
+    const base = BACKEND_VIDEO_BASE_URL.endsWith('/')
+      ? BACKEND_VIDEO_BASE_URL.slice(0, -1)
+      : BACKEND_VIDEO_BASE_URL;
+    // Ensure the videoPath part does not start with a slash if the base already provides it implicitly
+    const path = videoPath.startsWith('/') ? videoPath.substring(1) : videoPath;
+    fullVideoUrl = `${base}/${path}`;
+  }
+
   return (
-    <div className="w-full max-w-[1800px] mx-auto aspect-video bg-background rounded-2xl shadow-lg overflow-hidden">
-      <div className="w-full h-full flex items-center justify-center">
-        <p className="text-muted-foreground"></p>
-      </div>
+    <div className="w-full max-w-[1800px] mx-auto aspect-video bg-background rounded-2xl shadow-lg overflow-hidden flex items-center justify-center">
+      {fullVideoUrl ? (
+        <video
+          key={fullVideoUrl} // Using fullVideoUrl as key helps React re-render correctly if the source changes
+          className="w-full h-full object-contain" // 'object-contain' ensures the video fits and maintains aspect ratio
+          src={fullVideoUrl} // Use the constructed full URL
+          controls // Adds default video controls (play, pause, volume, etc.)
+          // autoPlay // Uncomment if you want the video to play automatically (generally not recommended for UX)
+          // loop // Uncomment if you want the video to loop
+          // muted // Uncomment if you want the video to start muted (often required for autoplay in browsers)
+        >
+          Your browser does not support the video tag. {/* Fallback message */}
+        </video>
+      ) : (
+        <p className="text-muted-foreground text-center px-4">
+          {/* Informative placeholder text */}
+          Video preview will appear here once a video is generated and its path is available.
+        </p>
+      )}
     </div>
   );
 }
@@ -46,7 +87,7 @@ function VariantSection() {
           <Button
             variant="outline"
             size="icon"
-            className="opacity-50 bg-background rounded-full w-8 h-8 p-0 flex items-center justify-center hover:bg-neutral-100"
+            className="opacity-50 bg-background rounded-full w-8 h-8 p-0 flex items-center justify-center hover:bg-neutral-100" // hover:bg-muted/80 might be better for dark mode
             onClick={() => console.log("Add clicked")}
             aria-label="Add"
           >
@@ -56,11 +97,10 @@ function VariantSection() {
       </div>
     );
   }
-  
 
 function FloatingPlayButton() {
   return (
-    <div className="absolute bottom-8 right-8">
+    <div className="absolute bottom-8 right-8 z-10">
       <Button
         size="icon"
         className="w-16 h-16 bg-background rounded-full shadow-lg hover:bg-neutral-100"
@@ -73,7 +113,7 @@ function FloatingPlayButton() {
   );
 }
 
-export default function MediaPreviewInterface() {
+export default function MediaPreviewInterface({ videoPath }: MediaPreviewInterfaceProps) {
   return (
     <div className="relative w-full h-full flex flex-col">
       <div className="flex-1 flex flex-col bg-muted p-4 lg:p-6 overflow-hidden rounded-2xl m-4">
@@ -82,10 +122,11 @@ export default function MediaPreviewInterface() {
           <Separator />
         </div>
         <div className="flex-1 flex flex-col items-center justify-center gap-6 lg:gap-8 overflow-auto p-2">
-          <VideoPreview />
+          <VideoPreview videoPath={videoPath} />
           <VariantSection />
         </div>
       </div>
+      <FloatingPlayButton />
     </div>
   );
 }
