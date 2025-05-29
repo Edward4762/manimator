@@ -124,7 +124,7 @@ def run_manim_code(manim_code: str, temp_dir: str, scene_name:str=None) -> tuple
 
         if os.path.exists(video_path):
             # Define the path for the final, persistently stored video
-            final_video_filename = "current_video.mp4" # Consistent name for easy access
+            final_video_filename = scene_class_name+".mp4"# Consistent name for easy access
             persistent_final_video_path = os.path.join(PERSISTENT_VIDEO_DIR, final_video_filename)
             
             # Copy the rendered video from Manim's output in temp_dir to the persistent storage

@@ -97,7 +97,7 @@ async def update_animation(query: str, manim_code_input:str):
         video_fs_path, stdout, stderr = run_manim_code(current_manim_code, temp_dir, scene_name)
         
         if video_fs_path:
-            video_url = f"{os.path.basename(video_fs_path)}"
+            video_url = f"/videos/{os.path.basename(video_fs_path)}"
         elif stderr: 
             for i in range(1, 3):
                 debug_input = f"Code: {current_manim_code}\nError: {stderr}"

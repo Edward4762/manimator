@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useCallback } from 'react';
 import { Input } from "@/components/ui/input";
-import { useLocation } from "react-router-dom"; // Make sure react-router-dom is installed if you use this
+import { useLocation } from "react-router-dom"; // Make sure react-router-dom is installed
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -17,7 +17,7 @@ import {
 // API Response and Interaction types
 interface ApiResponse {
   manim_code: string;
-  video_path: string | null; // Path to the video, can be null
+  video_path: string | null;
   stdout: string;
   stderr: string;
 }
@@ -28,14 +28,14 @@ interface Interaction {
   manimCode?: string;
   stdout?: string;
   stderr?: string;
-  videoPath?: string | null; // Added to store the video path for this interaction
+  videoPath?: string | null;
   isLoading?: boolean;
   error?: string;
 }
 
 // Props for ChatSidePanel
 interface ChatSidePanelProps {
-  onVideoSelect: (path: string | null) => void; // Callback to notify parent of new video path
+  onVideoSelect: (path: string | null) => void;
 }
 
 // Top user profile section
@@ -44,8 +44,8 @@ function UserProfile() {
     <div className="flex justify-between items-center">
       <div className="flex items-center gap-2">
         <Avatar className="h-8 w-8">
-          <AvatarImage src="https://github.com/shadcn.png" alt="Mauro Sicard" />
-          <AvatarFallback>MS</AvatarFallback>
+          <AvatarImage src="https://github.com/shadcn.png" alt="User Avatar" />
+          <AvatarFallback>U</AvatarFallback>
         </Avatar>
         <p className="text-sm font-medium text-foreground">Krishna Rathore</p>
       </div>
@@ -89,12 +89,12 @@ interface ChatItemProps {
   manimCode?: string;
   stdout?: string;
   stderr?: string;
-  videoPath?: string | null; // Added to potentially display info about the video
+  videoPath?: string | null;
   isLoading?: boolean;
   error?: string;
 }
 
-// Single chat item - MODIFIED to display API response
+// Single chat item
 function ChatItem({ manimCode, stdout, stderr, videoPath, isLoading, error }: ChatItemProps) {
   return (
     <div className="flex flex-col gap-2.5">
@@ -121,10 +121,10 @@ function ChatItem({ manimCode, stdout, stderr, videoPath, isLoading, error }: Ch
 
         {!isLoading && !error && (
           <>
-            {/* You could display the videoPath here if needed, e.g.,
+            {/* Optional: Display videoPath info
             {videoPath && (
               <p className="text-xs text-green-600 dark:text-green-400 my-1">
-                Video generated: {videoPath}
+                Video available: {videoPath}
               </p>
             )}
             */}
@@ -136,7 +136,6 @@ function ChatItem({ manimCode, stdout, stderr, videoPath, isLoading, error }: Ch
                 </pre>
               </div>
             )}
-
             {stdout && stdout.trim() && (
               <div className="my-1">
                 <p className="text-xs font-semibold text-foreground mb-1">Output (stdout):</p>
@@ -145,7 +144,6 @@ function ChatItem({ manimCode, stdout, stderr, videoPath, isLoading, error }: Ch
                 </pre>
               </div>
             )}
-
             {stderr && stderr.trim() && (
               <div className="my-1">
                 <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 mb-1">Logged Messages/Warnings (stderr):</p>
@@ -154,7 +152,6 @@ function ChatItem({ manimCode, stdout, stderr, videoPath, isLoading, error }: Ch
                 </pre>
               </div>
             )}
-
             {!manimCode && !(stdout && stdout.trim()) && !(stderr && stderr.trim()) && !videoPath && (
                 <p className="italic text-muted-foreground">No Manim code, output, or video was generated for this prompt.</p>
             )}
@@ -165,31 +162,27 @@ function ChatItem({ manimCode, stdout, stderr, videoPath, isLoading, error }: Ch
   );
 }
 
-
 export function PromptInput({ onSubmitPrompt }: { onSubmitPrompt: (text: string) => void }) {
     const [inputValue, setInputValue] = useState("");
-
     const handleSubmit = () => {
         if (inputValue.trim()) {
             onSubmitPrompt(inputValue);
             setInputValue("");
         }
     };
-
     const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
             handleSubmit();
         }
     };
-
     return (
       <div className="p-4 bg-background border-t border-border">
         <div className="flex flex-col bg-card border border-border rounded-lg p-3 shadow-sm">
           <div className="flex flex-col gap-3">
             <Input
               type="text"
-              placeholder="What do you want to create?"
+              placeholder="What do you want to create or update?"
               className="w-full bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 border-0 placeholder:text-muted-foreground text-sm"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
@@ -200,11 +193,7 @@ export function PromptInput({ onSubmitPrompt }: { onSubmitPrompt: (text: string)
                 <Paperclip className="h-4 w-4" />
               </Button>
               <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-muted-foreground relative overflow-hidden group"
-                >
+                <Button variant="ghost" size="icon" className="text-muted-foreground relative overflow-hidden group">
                   <Sparkles className="h-5 w-5 transition-transform duration-300 group-hover:scale-110 group-hover:animate-pulse group-hover:text-yellow-400" />
                   <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full" />
                 </Button>
@@ -219,8 +208,7 @@ export function PromptInput({ onSubmitPrompt }: { onSubmitPrompt: (text: string)
     );
   }
 
-
-export default function ChatSidePanel({ onVideoSelect }: ChatSidePanelProps) { // Accept onVideoSelect prop
+export default function ChatSidePanel({ onVideoSelect }: ChatSidePanelProps) {
   const location = useLocation();
   const initialPromptFromRouter = location.state?.prompt as string | undefined;
 
@@ -230,14 +218,18 @@ export default function ChatSidePanel({ onVideoSelect }: ChatSidePanelProps) { /
       initialInteractions.push({
         id: `initial-${Date.now()}`,
         prompt: initialPromptFromRouter,
-        // Initialize other fields if necessary
         videoPath: null,
       });
     }
     return initialInteractions;
   });
 
-  const fetchManimCode = useCallback(async (interactionId: string, promptText: string) => {
+  // Renamed from fetchManimCode to fetchAnimationData
+  const fetchAnimationData = useCallback(async (
+    interactionId: string,
+    promptText: string,
+    previousManimCode?: string // Added to pass previous code for updates
+  ) => {
     setInteractions(prev =>
       prev.map(item =>
         item.id === interactionId
@@ -245,30 +237,34 @@ export default function ChatSidePanel({ onVideoSelect }: ChatSidePanelProps) { /
         : item
       )
     );
-    // If a new request starts, clear the previous video by default,
-    // or only update on success based on preference.
-    // For now, let's clear it if we always want the latest video shown.
-    // onVideoSelect(null); // Optionally clear video preview at start of new fetch
 
     try {
-      const response = await fetch(`http://localhost:8000/generate-animation?query=${encodeURIComponent(promptText)}`);
+      let url: string;
+      const encodedPrompt = encodeURIComponent(promptText);
+
+      if (previousManimCode) {
+        // Use /update-animation endpoint
+        const encodedManimCode = encodeURIComponent(previousManimCode);
+        url = `http://localhost:8000/update-animation?query=${encodedPrompt}&manim_code_input=${encodedManimCode}`;
+        console.log("Calling /update-animation with:", { query: promptText, manim_code_input: previousManimCode });
+      } else {
+        // Use /generate-animation endpoint for initial creation
+        url = `http://localhost:8000/generate-animation?query=${encodedPrompt}`;
+        console.log("Calling /generate-animation with:", { query: promptText });
+      }
+
+      const response = await fetch(url);
 
       if (!response.ok) {
         let errorMsg = `API Error: ${response.status} ${response.statusText}`;
         try {
           const errorData = await response.json();
           if (errorData && errorData.detail) {
-            if (Array.isArray(errorData.detail)) {
-              errorMsg = errorData.detail.map((d: any) => `${d.loc ? d.loc.join('.')+': ' : ''}${d.msg}`).join('; ');
-            } else if (typeof errorData.detail === 'string') {
-              errorMsg = errorData.detail;
-            } else {
-               errorMsg = `Server error: ${JSON.stringify(errorData.detail)}`;
-            }
+            errorMsg = Array.isArray(errorData.detail)
+              ? errorData.detail.map((d: any) => `${d.loc ? d.loc.join('.')+': ' : ''}${d.msg}`).join('; ')
+              : typeof errorData.detail === 'string' ? errorData.detail : JSON.stringify(errorData.detail);
           }
-        } catch (e) {
-          console.warn("Could not parse error response as JSON:", e);
-        }
+        } catch (e) { console.warn("Could not parse error response as JSON:", e); }
         throw new Error(errorMsg);
       }
 
@@ -282,18 +278,16 @@ export default function ChatSidePanel({ onVideoSelect }: ChatSidePanelProps) { /
                 manimCode: data.manim_code,
                 stdout: data.stdout,
                 stderr: data.stderr,
-                videoPath: data.video_path, // Store the video path in the interaction
+                videoPath: data.video_path,
                 isLoading: false,
               }
             : interaction
         )
       );
-
-      // Call onVideoSelect with the new video path (can be null if API returns null)
       onVideoSelect(data.video_path);
 
     } catch (err: any) {
-      console.error("Failed to fetch from API or process response:", err);
+      console.error("Failed to fetch animation data:", err);
       setInteractions(prevInteractions =>
         prevInteractions.map(interaction =>
           interaction.id === interactionId
@@ -301,35 +295,47 @@ export default function ChatSidePanel({ onVideoSelect }: ChatSidePanelProps) { /
             : interaction
         )
       );
-      // Potentially clear video path on error too
       onVideoSelect(null);
     }
-  }, [onVideoSelect]); // Add onVideoSelect to useCallback dependencies
+  }, [onVideoSelect]);
 
   useEffect(() => {
-    const initialInteractionInState = interactions.find(
+    const initialInteraction = interactions.find(
       i => i.id.startsWith('initial-') && i.prompt === initialPromptFromRouter
     );
-
-    // Ensure it hasn't been fetched, isn't loading, and has no error
-    if (initialInteractionInState && !initialInteractionInState.manimCode && !initialInteractionInState.videoPath && !initialInteractionInState.isLoading && !initialInteractionInState.error) {
-        fetchManimCode(initialInteractionInState.id, initialInteractionInState.prompt);
+    if (initialInteraction && !initialInteraction.manimCode && !initialInteraction.videoPath && !initialInteraction.isLoading && !initialInteraction.error) {
+      // For initial prompt from router, always generate, so no previousManimCode
+      fetchAnimationData(initialInteraction.id, initialInteraction.prompt);
     }
-  }, [initialPromptFromRouter, interactions, fetchManimCode]);
+  }, [initialPromptFromRouter, interactions, fetchAnimationData]);
 
 
   const handleNewPromptSubmit = (promptText: string) => {
     if (promptText.trim()) {
       const newInteractionId = `user-${Date.now()}`;
+
+      let previousManimCode: string | undefined = undefined;
+      // Find the manimCode from the most recent successful interaction
+      if (interactions.length > 0) {
+        for (let i = interactions.length - 1; i >= 0; i--) {
+          const lastInteraction = interactions[i];
+          if (lastInteraction.manimCode && !lastInteraction.error) {
+            previousManimCode = lastInteraction.manimCode;
+            break;
+          }
+        }
+      }
+
       setInteractions(prevInteractions => [
         ...prevInteractions,
         {
           id: newInteractionId,
           prompt: promptText,
-          videoPath: null, // Initialize videoPath for new interaction
+          videoPath: null, // Initialize for the new interaction
         }
       ]);
-      fetchManimCode(newInteractionId, promptText);
+      // Pass previousManimCode if available, otherwise it's undefined (for initial generation)
+      fetchAnimationData(newInteractionId, promptText, previousManimCode);
     }
   };
 
@@ -340,7 +346,6 @@ export default function ChatSidePanel({ onVideoSelect }: ChatSidePanelProps) { /
           <UserProfile />
           <SearchBar />
         </div>
-
         <div className="pt-2">
           {interactions.map(interaction => (
             <React.Fragment key={interaction.id}>
@@ -351,7 +356,7 @@ export default function ChatSidePanel({ onVideoSelect }: ChatSidePanelProps) { /
                   manimCode={interaction.manimCode}
                   stdout={interaction.stdout}
                   stderr={interaction.stderr}
-                  videoPath={interaction.videoPath} // Pass videoPath to ChatItem
+                  videoPath={interaction.videoPath}
                   error={interaction.error}
                 />
               </div>
